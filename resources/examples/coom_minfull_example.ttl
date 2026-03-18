@@ -1,0 +1,259 @@
+PREFIX coom: <http://www.denkbares.com/coomV2#>
+PREFIX dex:  <http://denkbares.com/ex#>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+dex:BikeT_behavior_8f1b6b5b-a456-4673-a583-c8d6ca52201c
+        rdf:type         coom:Requirement;
+        coom:condition   [ coom:leftOperand   dex:Path_BikeT_tire_0;
+                           coom:operator      coom:equals;
+                           coom:rightOperand  dex:Path_BikeT_tire_1
+                         ];
+        coom:dslText     "behavior BikeT {\n\trequire tire[0] = tire[1]\n}";
+        coom:origin      dex:Struct_BikeT;
+        coom:references  dex:BikeT_tire .
+
+dex:root_addon  rdf:type  coom:Feature;
+        coom:name  "addon";
+        coom:type  dex:Struct_AddonT .
+
+dex:Path_BikeT_frameColor
+        rdf:type       coom:Path;
+        coom:origin    dex:Struct_BikeT;
+        coom:pathItem  ( [ rdf:type        coom:FeaturePathItem;
+                           coom:feature    dex:BikeT_frameColor;
+                           coom:fromIndex  "0"^^xsd:int;
+                           coom:toIndex    "0"^^xsd:int
+                         ]
+                       ) .
+
+dex:BikeT_bag  rdf:type      coom:Feature;
+        coom:maxCardinality  "5"^^xsd:int;
+        coom:minCardinality  "0"^^xsd:int;
+        coom:name            "bag";
+        coom:type            dex:Struct_BagT .
+
+dex:TireT_t26  rdf:type      coom:Option;
+        coom:attributeValue  [ rdf:type        coom:AttributeValue;
+                               coom:attribute  dex:TireT_weight;
+                               coom:value      "800.0"^^xsd:double
+                             ];
+        coom:name            "t26" .
+
+dex:AddonT_printedOnFrame
+        rdf:type   coom:Feature;
+        coom:name  "printedOnFrame";
+        coom:type  coom:Boolean .
+
+dex:BagT_volume  rdf:type  coom:Feature;
+        coom:name  "volume";
+        coom:type  coom:Numerical .
+
+dex:TireT_t28  rdf:type      coom:Option;
+        coom:attributeValue  [ rdf:type        coom:AttributeValue;
+                               coom:attribute  dex:TireT_weight;
+                               coom:value      "1000.0"^^xsd:double
+                             ];
+        coom:name            "t28" .
+
+dex:Path_BikeT_tire_1
+        rdf:type       coom:Path;
+        coom:origin    dex:Struct_BikeT;
+        coom:pathItem  ( [ rdf:type        coom:FeaturePathItem;
+                           coom:feature    dex:BikeT_tire;
+                           coom:fromIndex  "1"^^xsd:int;
+                           coom:toIndex    "1"^^xsd:int
+                         ]
+                       ) .
+
+dex:Struct_AddonT  rdf:type  coom:Structure;
+        coom:dslText     "structure AddonT {\n\tbool\tprintedOnFrame\t\n\tstring\tframeText\t\t\n}";
+        coom:hasFeature  ( dex:AddonT_printedOnFrame dex:AddonT_frameText );
+        coom:name        "AddonT" .
+
+dex:TireT_weight  rdf:type  coom:Attribute;
+        coom:name  "weight";
+        coom:type  coom:Numerical .
+
+dex:BikeT_tire  rdf:type     coom:Feature;
+        coom:maxCardinality  "2"^^xsd:int;
+        coom:minCardinality  "2"^^xsd:int;
+        coom:name            "tire";
+        coom:type            dex:TireT .
+
+dex:Struct_BagT  rdf:type  coom:Structure;
+        coom:dslText     "structure BagT {\n\tColorT\tcolor\t\n\tnum.#/L\tvolume\t\n}";
+        coom:hasFeature  ( dex:BagT_color dex:BagT_volume );
+        coom:name        "BagT" .
+
+dex:Struct_BikeT  rdf:type  coom:Structure;
+        coom:dslText     "structure BikeT {\n\t      2\tTireT\ttire\t\t\n\t       \tColorT\tframeColor\t\n\t   0..5\tBagT\tbag\t\t\t\n}";
+        coom:hasFeature  ( dex:BikeT_tire dex:BikeT_frameColor dex:BikeT_bag );
+        coom:name        "BikeT" .
+
+<http://denkbares.com/ex#num.%23-L>
+        rdf:type               coom:Numerical;
+        coom:fractionalDigits  "1"^^xsd:int;
+        coom:unit              "L" .
+
+dex:BikeT_frameColor  rdf:type  coom:Feature;
+        coom:name  "frameColor";
+        coom:type  dex:ColorT .
+
+dex:ColorT  rdf:type    coom:Enumeration;
+        coom:dslText    "enumeration ColorT {\n\tblack\t\n\tyellow\t\n\tblue\t\n\tred\t\t\n}";
+        coom:hasOption  ( dex:ColorT_black dex:ColorT_yellow dex:ColorT_blue dex:ColorT_red );
+        coom:name       "ColorT" .
+
+dex:AddonT_frameText  rdf:type  coom:Feature;
+        coom:name  "frameText";
+        coom:type  coom:Textual .
+
+dex:ColorT_red  rdf:type  coom:Option;
+        coom:name  "red" .
+
+dex:root_bike  rdf:type  coom:Feature;
+        coom:name  "bike";
+        coom:type  dex:Struct_BikeT .
+
+dex:BikeT_behavior_42f1a0f0-b577-406e-b91c-ded51941fcfc
+        rdf:type         coom:Combinations;
+        coom:allow       [ coom:condition  true;
+                           coom:condition  [ coom:or  [ coom:leftOperand   dex:Path_BikeT_frameColor;
+                                                        coom:operator      coom:equals;
+                                                        coom:rightOperand  dex:ColorT_red
+                                                      ];
+                                             coom:or  [ coom:leftOperand   dex:Path_BikeT_frameColor;
+                                                        coom:operator      coom:equals;
+                                                        coom:rightOperand  dex:ColorT_blue
+                                                      ];
+                                             coom:or  [ coom:leftOperand   dex:Path_BikeT_frameColor;
+                                                        coom:operator      coom:equals;
+                                                        coom:rightOperand  dex:ColorT_black
+                                                      ]
+                                           ]
+                         ];
+        coom:allow       [ coom:condition  [ coom:or  [ coom:leftOperand   dex:Path_BikeT_tire_0__1;
+                                                        coom:operator      coom:equals;
+                                                        coom:rightOperand  dex:TireT_t28
+                                                      ];
+                                             coom:or  [ coom:leftOperand   dex:Path_BikeT_tire_0__1;
+                                                        coom:operator      coom:equals;
+                                                        coom:rightOperand  dex:TireT_t26
+                                                      ]
+                                           ];
+                           coom:condition  [ coom:leftOperand   dex:Path_BikeT_frameColor;
+                                             coom:operator      coom:equals;
+                                             coom:rightOperand  dex:ColorT_yellow
+                                           ]
+                         ];
+        coom:dslText     "behavior BikeT {\n\tcombinations\t(\tframeColor\t\t\ttire[0..1]\t)\t\n\tallow\t\t\t(\tyellow\t\t\t\t(t26, t28)\t)\t\n\tallow\t\t\t(\t(black, blue, red)\t-*-\t\t\t)\t\n}";
+        coom:origin      dex:Struct_BikeT;
+        coom:references  dex:BikeT_frameColor , dex:BikeT_tire .
+
+dex:Path__root_bike_frameColor
+        rdf:type       coom:Path;
+        coom:origin    dex:Struct_root;
+        coom:pathItem  ( [ rdf:type        coom:FeaturePathItem;
+                           coom:feature    dex:root_bike;
+                           coom:fromIndex  "0"^^xsd:int;
+                           coom:toIndex    "0"^^xsd:int
+                         ]
+                         [ rdf:type        coom:FeaturePathItem;
+                           coom:feature    dex:BikeT_frameColor;
+                           coom:fromIndex  "0"^^xsd:int;
+                           coom:toIndex    "0"^^xsd:int
+                         ]
+                       ) .
+
+dex:BagT_color  rdf:type  coom:Feature;
+        coom:name  "color";
+        coom:type  dex:ColorT .
+
+dex:Struct_root  rdf:type  coom:Structure , coom:Product;
+        coom:dslText     "product {\n\tBikeT\tbike\t\n\tAddonT\taddon\t\n}";
+        coom:hasFeature  ( dex:root_bike dex:root_addon ) .
+
+dex:TireT  rdf:type        coom:Enumeration;
+        coom:dslText       "enumeration TireT {\n\tattribute\tnum.#/gr\tweight\t\n\n\tt22\t= (\t  500.0\t)\t\n\tt24\t= (\t  700.0\t)\t\n\tt26\t= (\t  800.0\t)\t\n\tt28\t= (\t 1000.0\t)\t\n}";
+        coom:hasAttribute  ( dex:TireT_weight );
+        coom:hasOption     ( dex:TireT_t22 dex:TireT_t24 dex:TireT_t26 dex:TireT_t28 );
+        coom:name          "TireT" .
+
+dex:Path_BikeT_tire_0
+        rdf:type       coom:Path;
+        coom:origin    dex:Struct_BikeT;
+        coom:pathItem  ( [ rdf:type        coom:FeaturePathItem;
+                           coom:feature    dex:BikeT_tire;
+                           coom:fromIndex  "0"^^xsd:int;
+                           coom:toIndex    "0"^^xsd:int
+                         ]
+                       ) .
+
+dex:ColorT_blue  rdf:type  coom:Option;
+        coom:name  "blue" .
+
+dex:TireT_t22  rdf:type      coom:Option;
+        coom:attributeValue  [ rdf:type        coom:AttributeValue;
+                               coom:attribute  dex:TireT_weight;
+                               coom:value      "500.0"^^xsd:double
+                             ];
+        coom:name            "t22" .
+
+dex:ColorT_yellow  rdf:type  coom:Option;
+        coom:name  "yellow" .
+
+<http://denkbares.com/ex#num.%23-gr>
+        rdf:type               coom:Numerical;
+        coom:fractionalDigits  "1"^^xsd:int;
+        coom:unit              "gr" .
+
+dex:Path__root_addon_printedOnFrame
+        rdf:type       coom:Path;
+        coom:origin    dex:Struct_root;
+        coom:pathItem  ( [ rdf:type        coom:FeaturePathItem;
+                           coom:feature    dex:root_addon;
+                           coom:fromIndex  "0"^^xsd:int;
+                           coom:toIndex    "0"^^xsd:int
+                         ]
+                         [ rdf:type        coom:FeaturePathItem;
+                           coom:feature    dex:AddonT_printedOnFrame;
+                           coom:fromIndex  "0"^^xsd:int;
+                           coom:toIndex    "0"^^xsd:int
+                         ]
+                       ) .
+
+dex:Path_BikeT_tire_0__1
+        rdf:type       coom:Path;
+        coom:origin    dex:Struct_BikeT;
+        coom:pathItem  ( [ rdf:type        coom:FeaturePathItem;
+                           coom:feature    dex:BikeT_tire;
+                           coom:fromIndex  "0"^^xsd:int;
+                           coom:toIndex    "1"^^xsd:int
+                         ]
+                       ) .
+
+dex:TireT_t24  rdf:type      coom:Option;
+        coom:attributeValue  [ rdf:type        coom:AttributeValue;
+                               coom:attribute  dex:TireT_weight;
+                               coom:value      "700.0"^^xsd:double
+                             ];
+        coom:name            "t24" .
+
+dex:ColorT_black  rdf:type  coom:Option;
+        coom:name  "black" .
+
+dex:root_behavior_5cf84ff4-141a-40a3-a1b3-bd1057b11f89
+        rdf:type         coom:Requirement;
+        coom:condition   [ coom:leftOperand   dex:Path__root_addon_printedOnFrame;
+                           coom:operator      coom:equals;
+                           coom:rightOperand  false
+                         ];
+        coom:condition   [ coom:leftOperand   dex:Path__root_bike_frameColor;
+                           coom:operator      coom:equals;
+                           coom:rightOperand  dex:ColorT_yellow
+                         ];
+        coom:dslText     "behavior  {\n\tcondition root.bike.frameColor = yellow\n\trequire root.addon.printedOnFrame = false\n}";
+        coom:origin      dex:Struct_root;
+        coom:references  dex:BikeT_frameColor , dex:AddonT_printedOnFrame .
