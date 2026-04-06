@@ -84,8 +84,63 @@ dex:WaterTank_tankMaterial
         coom:name  "tankMaterial";
         coom:type  dex:TankMaterial .
 
+dex:b2
+        rdf:type                coom:Combinations;
+        coom:allow              [ coom:condition  [ coom:leftOperand   dex:Path__root_brewingUnit_pumpPressure;
+                                                    coom:operator      coom:equals;
+                                                    coom:rightOperand  dex:PumpPressure_P19
+                                                  ];
+                                  coom:condition  [ coom:leftOperand   dex:Path__root_brewingUnit_capsuleType;
+                                                    coom:operator      coom:equals;
+                                                    coom:rightOperand  dex:CapsuleType_Proprietary
+                                                  ]
+                                ];
+        coom:allow              [ coom:condition  [ coom:leftOperand   dex:Path__root_brewingUnit_pumpPressure;
+                                                    coom:operator      coom:equals;
+                                                    coom:rightOperand  dex:PumpPressure_P15
+                                                  ];
+                                  coom:condition  [ coom:leftOperand   dex:Path__root_brewingUnit_capsuleType;
+                                                    coom:operator      coom:equals;
+                                                    coom:rightOperand  dex:CapsuleType_Standard
+                                                  ]
+                                ];
+        coom:constrainsFeature  dex:BrewingUnit_capsuleType , dex:BrewingUnit_pumpPressure;
+        coom:dslText            "behavior  {\n\tcombinations\t(\troot.brewingUnit.capsuleType\troot.brewingUnit.pumpPressure\t)\t\n\tallow\t\t\t(\tStandard\t\t\t\t\t\tP15\t\t\t\t\t\t\t\t)\t\n\tallow\t\t\t(\tProprietary\t\t\t\t\t\tP19\t\t\t\t\t\t\t\t)\t\n}";
+        coom:origin             dex:Struct_root;
+        coom:references         dex:BrewingUnit_pumpPressure , dex:BrewingUnit_capsuleType .
+
 dex:PumpPressure_P19  rdf:type  coom:Option;
         coom:name  "P19" .
+
+dex:b1
+        rdf:type                coom:Combinations;
+        coom:allow              [ coom:condition  [ coom:leftOperand   dex:Path__root_waterTank_tankMaterial;
+                                                    coom:operator      coom:equals;
+                                                    coom:rightOperand  dex:TankMaterial_Glass
+                                                  ];
+                                  coom:condition  [ coom:or  [ coom:leftOperand   dex:Path__root_waterTank_tankCapacity;
+                                                               coom:operator      coom:equals;
+                                                               coom:rightOperand  dex:TankCapacity_V1500
+                                                             ];
+                                                    coom:or  [ coom:leftOperand   dex:Path__root_waterTank_tankCapacity;
+                                                               coom:operator      coom:equals;
+                                                               coom:rightOperand  dex:TankCapacity_V1000
+                                                             ]
+                                                  ]
+                                ];
+        coom:allow              [ coom:condition  [ coom:leftOperand   dex:Path__root_waterTank_tankMaterial;
+                                                    coom:operator      coom:equals;
+                                                    coom:rightOperand  dex:TankMaterial_Plastic
+                                                  ];
+                                  coom:condition  [ coom:leftOperand   dex:Path__root_waterTank_tankCapacity;
+                                                    coom:operator      coom:equals;
+                                                    coom:rightOperand  dex:TankCapacity_V700
+                                                  ]
+                                ];
+        coom:constrainsFeature  dex:WaterTank_tankMaterial , dex:WaterTank_tankCapacity;
+        coom:dslText            "behavior  {\n\tcombinations\t(\troot.waterTank.tankCapacity\troot.waterTank.tankMaterial\t)\t\n\tallow\t\t\t(\tV700\t\t\t\t\t\tPlastic\t\t\t\t\t\t)\t\n\tallow\t\t\t(\t(V1000, V1500)\t\t\t\tGlass\t\t\t\t\t\t)\t\n}";
+        coom:origin             dex:Struct_root;
+        coom:references         dex:WaterTank_tankCapacity , dex:WaterTank_tankMaterial .
 
 dex:BrewingUnit_capsuleType
         rdf:type   coom:Feature;
@@ -103,6 +158,28 @@ dex:TankCapacity_V700
 dex:TankMaterial_Glass
         rdf:type   coom:Option;
         coom:name  "Glass" .
+
+dex:b3
+        rdf:type                coom:Combinations;
+        coom:allow              [ coom:condition  true;
+                                  coom:condition  [ coom:leftOperand   dex:Path__root_brewingUnit_pumpPressure;
+                                                    coom:operator      coom:equals;
+                                                    coom:rightOperand  dex:PumpPressure_P15
+                                                  ]
+                                ];
+        coom:allow              [ coom:condition  [ coom:leftOperand   dex:Path__root_waterTank_tankCapacity;
+                                                    coom:operator      coom:equals;
+                                                    coom:rightOperand  dex:TankCapacity_V1500
+                                                  ];
+                                  coom:condition  [ coom:leftOperand   dex:Path__root_brewingUnit_pumpPressure;
+                                                    coom:operator      coom:equals;
+                                                    coom:rightOperand  dex:PumpPressure_P19
+                                                  ]
+                                ];
+        coom:constrainsFeature  dex:BrewingUnit_pumpPressure , dex:WaterTank_tankCapacity;
+        coom:dslText            "behavior  {\n\tcombinations\t(\troot.brewingUnit.pumpPressure\troot.waterTank.tankCapacity\t)\t\n\tallow\t\t\t(\tP19\t\t\t\t\t\t\t\tV1500\t\t\t\t\t\t)\t\n\tallow\t\t\t(\tP15\t\t\t\t\t\t\t\t-*-\t\t\t\t\t\t\t)\t\n}";
+        coom:origin             dex:Struct_root;
+        coom:references         dex:BrewingUnit_pumpPressure , dex:WaterTank_tankCapacity .
 
 dex:BrewingUnit_pumpPressure
         rdf:type   coom:Feature;
@@ -136,61 +213,6 @@ dex:Path__root_waterTank_tankMaterial
                            coom:toIndex    "0"^^xsd:int
                          ]
                        ) .
-
-dex:root_behavior_e75fb135-5bd1-4164-9aa0-8f2e9b46d05c
-        rdf:type                coom:Combinations;
-        coom:allow              [ coom:condition  [ coom:leftOperand   dex:Path__root_brewingUnit_pumpPressure;
-                                                    coom:operator      coom:equals;
-                                                    coom:rightOperand  dex:PumpPressure_P19
-                                                  ];
-                                  coom:condition  [ coom:leftOperand   dex:Path__root_brewingUnit_capsuleType;
-                                                    coom:operator      coom:equals;
-                                                    coom:rightOperand  dex:CapsuleType_Proprietary
-                                                  ]
-                                ];
-        coom:allow              [ coom:condition  [ coom:leftOperand   dex:Path__root_brewingUnit_pumpPressure;
-                                                    coom:operator      coom:equals;
-                                                    coom:rightOperand  dex:PumpPressure_P15
-                                                  ];
-                                  coom:condition  [ coom:leftOperand   dex:Path__root_brewingUnit_capsuleType;
-                                                    coom:operator      coom:equals;
-                                                    coom:rightOperand  dex:CapsuleType_Standard
-                                                  ]
-                                ];
-        coom:constrainsFeature  dex:BrewingUnit_capsuleType , dex:BrewingUnit_pumpPressure;
-        coom:dslText            "behavior  {\n\tcombinations\t(\troot.brewingUnit.capsuleType\troot.brewingUnit.pumpPressure\t)\t\n\tallow\t\t\t(\tStandard\t\t\t\t\t\tP15\t\t\t\t\t\t\t\t)\t\n\tallow\t\t\t(\tProprietary\t\t\t\t\t\tP19\t\t\t\t\t\t\t\t)\t\n}";
-        coom:origin             dex:Struct_root;
-        coom:references         dex:BrewingUnit_pumpPressure , dex:BrewingUnit_capsuleType .
-
-dex:root_behavior_fa68f9fe-693e-44c2-9649-8333220fe8ff
-        rdf:type                coom:Combinations;
-        coom:allow              [ coom:condition  [ coom:leftOperand   dex:Path__root_waterTank_tankMaterial;
-                                                    coom:operator      coom:equals;
-                                                    coom:rightOperand  dex:TankMaterial_Glass
-                                                  ];
-                                  coom:condition  [ coom:or  [ coom:leftOperand   dex:Path__root_waterTank_tankCapacity;
-                                                               coom:operator      coom:equals;
-                                                               coom:rightOperand  dex:TankCapacity_V1500
-                                                             ];
-                                                    coom:or  [ coom:leftOperand   dex:Path__root_waterTank_tankCapacity;
-                                                               coom:operator      coom:equals;
-                                                               coom:rightOperand  dex:TankCapacity_V1000
-                                                             ]
-                                                  ]
-                                ];
-        coom:allow              [ coom:condition  [ coom:leftOperand   dex:Path__root_waterTank_tankMaterial;
-                                                    coom:operator      coom:equals;
-                                                    coom:rightOperand  dex:TankMaterial_Plastic
-                                                  ];
-                                  coom:condition  [ coom:leftOperand   dex:Path__root_waterTank_tankCapacity;
-                                                    coom:operator      coom:equals;
-                                                    coom:rightOperand  dex:TankCapacity_V700
-                                                  ]
-                                ];
-        coom:constrainsFeature  dex:WaterTank_tankMaterial , dex:WaterTank_tankCapacity;
-        coom:dslText            "behavior  {\n\tcombinations\t(\troot.waterTank.tankCapacity\troot.waterTank.tankMaterial\t)\t\n\tallow\t\t\t(\tV700\t\t\t\t\t\tPlastic\t\t\t\t\t\t)\t\n\tallow\t\t\t(\t(V1000, V1500)\t\t\t\tGlass\t\t\t\t\t\t)\t\n}";
-        coom:origin             dex:Struct_root;
-        coom:references         dex:WaterTank_tankCapacity , dex:WaterTank_tankMaterial .
 
 dex:Path__root_brewingUnit_pumpPressure
         rdf:type       coom:Path;

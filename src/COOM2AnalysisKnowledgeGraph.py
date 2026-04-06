@@ -32,7 +32,7 @@ class COOM2AnalysisKnowledgeGraph:
 
     def export(self, out_path: Path):
         output_graph = Graph()
-        output_graph.bind("g", self.EX)
+        output_graph.bind("", self.EX)
         self._generate_features(output_graph)
         self._generate_components(output_graph)
         self._generate_knowledge(output_graph)
@@ -52,10 +52,18 @@ class COOM2AnalysisKnowledgeGraph:
             for feature in features:
                 namespace, local_name = split_uri(str(feature))
                 fv = URIRef(self.EX + local_name)
+
+                # check, is the feature a structure type itself?
+                # then: connect the type in the objects of the triple, not the feature
+                feature_type = self.input_graph.value(feature, self.COOM["type"])
+                if feature_type:
+                    type_of_feature_type = self.input_graph.value(feature_type, RDF.type)
+                    if type_of_feature_type == self.COOM["Structure"]:
+                        namespace, local_name = split_uri(str(feature_type))
+                        fv = URIRef(self.EX + local_name)
+
                 output_graph.add((cv, self.EX_HAS, fv))
                 self.coom2kg[feature] = fv
-
-                # todo the sub-components of root are falsely detected as features
 
     def _generate_features(self, output_graph: Graph):
         for f in self.input_graph.subjects(RDF.type, self.FEATURE):
