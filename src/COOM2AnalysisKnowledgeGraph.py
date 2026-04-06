@@ -5,6 +5,7 @@ from rdflib import Graph, Namespace, RDF, URIRef
 from rdflib.namespace import split_uri
 from rdflib.collection import Collection
 
+
 class COOM2AnalysisKnowledgeGraph:
     def __init__(self, input_path: Path):
         self.COOM = Namespace("http://www.denkbares.com/coomV2#")
@@ -12,6 +13,7 @@ class COOM2AnalysisKnowledgeGraph:
         self.FEATURE = self.COOM["Feature"]
         self.COMPONENT = self.COOM["Structure"]
         self.COOM_TYPE = self.COOM["type"]
+        self.COOM_COMBINATIONS = self.COOM["Combinations"]
 
         self.EX_COMPONENT = self.EX["COMPONENT"]
         self.EX_FEATURE = self.EX["FEATURE"]
@@ -20,13 +22,17 @@ class COOM2AnalysisKnowledgeGraph:
 
         self.EX_VALUE = self.EX["VALUE"]
         self.EX_KNOWLEDGE = self.EX["KNOWLEDGE"]
+        self.EX_CONSTRAINS = self.EX["constrains"]
+
+        # maps the coom URIs to URI objects in the output knowledge graph
+        self.coom2kg = {}
 
         self.input_graph = Graph()
         self.input_graph.parse(input_path)
 
     def export(self, out_path: Path):
         output_graph = Graph()
-        output_graph.bind("", self.EX)
+        output_graph.bind("g", self.EX)
         self._generate_features(output_graph)
         self._generate_components(output_graph)
         self._generate_knowledge(output_graph)
@@ -38,6 +44,7 @@ class COOM2AnalysisKnowledgeGraph:
             namespace, local_name = split_uri(str(c))
             cv = URIRef(self.EX + local_name)
             output_graph.add((cv, RDF.type, self.EX_COMPONENT))
+            self.coom2kg[c] = cv
 
             # BUILDING RULE Hierarchy Edge (SE1 / SE2)
             feature_list_node = self.input_graph.value(c, self.COOM["hasFeature"])
@@ -46,7 +53,9 @@ class COOM2AnalysisKnowledgeGraph:
                 namespace, local_name = split_uri(str(feature))
                 fv = URIRef(self.EX + local_name)
                 output_graph.add((cv, self.EX_HAS, fv))
-                # todo BikeT_bag
+                self.coom2kg[feature] = fv
+
+                # todo the sub-components of root are falsely detected as features
 
     def _generate_features(self, output_graph: Graph):
         for f in self.input_graph.subjects(RDF.type, self.FEATURE):
@@ -54,16 +63,31 @@ class COOM2AnalysisKnowledgeGraph:
             namespace, local_name = split_uri(str(f))
             fv = URIRef(self.EX + local_name)
             output_graph.add((fv, RDF.type, self.EX_FEATURE))
+            self.coom2kg[f] = fv
 
             # BUILDING RULE Feature Value Edge (FE)
             feature_options = self._get_values_of(f)
             if feature_options:
                 for option in feature_options:
-                    output_graph.add((fv, self.EX_HAS, URIRef(self.EX + option)))
+                    option_uri = URIRef(self.EX + option)
+                    output_graph.add((fv, self.EX_HAS, option_uri))
+                    self.coom2kg[option] = option_uri
 
     def _generate_knowledge(self, output_graph: Graph):
-        # todo: build knowledge elements
-        pass
+        self._generate_knowledge_combinations(output_graph)
+        # todo: build the other knowledge elements, e.g., requirements
+
+    def _generate_knowledge_combinations(self, output_graph: Graph):
+        constrains_feature = self.COOM["constrainsFeature"]
+        for b in self.input_graph.subjects(RDF.type, self.COOM_COMBINATIONS):
+            # Knowledge Node (CN): For each behaviour knowledge create a node with link to KNOWLEDGE type node
+            namespace, local_name = split_uri(str(b))
+            knode = URIRef(self.EX + local_name)
+            output_graph.add((knode, RDF.type, self.EX_KNOWLEDGE))
+            for cf in self.input_graph.objects(b, constrains_feature):
+                # Constraints Edge(CE3)
+                cfeature = self.coom2kg[cf]
+                output_graph.add((knode, self.EX_CONSTRAINS, cfeature))
 
     def _get_values_of(self, f) -> list[str]:
         the_type = self.input_graph.value(f, self.COOM_TYPE)
