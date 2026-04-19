@@ -9,8 +9,8 @@ class ResultPrinter:
         """Append one measure result row to the output table."""
         self.rows.append((left, right))
 
-    def print(self) -> None:
-        """Print all collected rows as a Markdown-style table."""
+    def print_as_markdown(self) -> str:
+        """Return all collected rows as a Markdown-style table."""
         headers = ("Measure", "Value")
         printable_rows = [
             (self._format_measure(left), self._format_value(right))
@@ -19,14 +19,14 @@ class ResultPrinter:
         all_rows = [headers, *printable_rows]
         widths = [max(len(row[index]) for row in all_rows) for index in range(2)]
 
-        print(
-            f"| {headers[0].ljust(widths[0])} | {headers[1].rjust(widths[1])} |"
-        )
-        print(
-            f"| {'-' * widths[0]} | {'-' * widths[1]} |"
-        )
+        lines = [
+            f"| {headers[0].ljust(widths[0])} | {headers[1].rjust(widths[1])} |",
+            f"| {'-' * widths[0]} | {'-' * widths[1]} |",
+        ]
         for left, right in printable_rows:
-            print(f"| {left.ljust(widths[0])} | {right.rjust(widths[1])} |")
+            lines.append(f"| {left.ljust(widths[0])} | {right.rjust(widths[1])} |")
+
+        return "\n".join(lines)
 
     def _format_measure(self, measure: str) -> str:
         if measure.endswith(".sparql"):

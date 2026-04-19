@@ -2,56 +2,53 @@ import argparse
 import logging
 from pathlib import Path
 
-from COOM2AnalysisKnowledgeGraph import COOM2AnalysisKnowledgeGraph
-from KGDescribe import KGDescribe
+from RadarVisualizer import RadarVisualizer
 
 
 class COOMDescribe:
-    def __init__(self, inputfile: Path):
-        self.inputfile = inputfile
+    def __init__(self, inputfiles):
+        self.inputfiles = inputfiles
 
-    def describe(self) -> None:
-        """Convert one COOM model and print the configured complexity measures.
-
-        The generated analysis graph is written next to the input file and then
-        loaded again for SPARQL-based evaluation.
-        """
+    def describe(self):
+        """Convert all input models and collect their measure values for radar use."""
         measure_ws = Path(__file__).parent / "resources" / "measures"
         measures = [
             measure_ws / "component_count.sparql",
+            measure_ws / "component_count_avg.sparql",
+            measure_ws / "component_count_min.sparql",
+            measure_ws / "component_count_max.sparql",
             measure_ws / "choice_feature_count.sparql",
+            measure_ws / "choice_feature_count_avg.sparql",
+            measure_ws / "choice_feature_count_min.sparql",
+            measure_ws / "choice_feature_count_max.sparql",
             measure_ws / "num_feature_count.sparql",
             measure_ws / "text_feature_count.sparql",
             measure_ws / "knowledge_count.sparql",
             measure_ws / "knowledge_feature_average.sparql",
+            measure_ws / "knowledge_feature_min.sparql",
+            measure_ws / "knowledge_feature_max.sparql",
             measure_ws / "inverse_knowledge_feature_average.sparql",
+            measure_ws / "inverse_knowledge_feature_min.sparql",
+            measure_ws / "inverse_knowledge_feature_max.sparql",
             measure_ws / "avg_terminology_depth.sparql"
             ]
-
-        converted_graph = self.inputfile.parent / f"{self.inputfile.stem}_analysis.ttl"
-        logging.info(f"Converting COOM RDF file to {converted_graph}")
-        converter = COOM2AnalysisKnowledgeGraph(self.inputfile)
-        converter.export(converted_graph)
-
-        logging.info(f"Describe: {converted_graph}")
-        describer = KGDescribe()
-        describer.load(converted_graph)
-        describer.run_measures(measures)
-        describer.describe()
+        visualizer = RadarVisualizer()
+        return visualizer.collect(self.inputfiles, measures)
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Convert a COOM RDF file and describe the resulting knowledge graph.")
-    parser.add_argument("-i", "--inputfile", help="Input COOM RDF file.", required=True)
+    parser = argparse.ArgumentParser(description="Convert COOM RDF files and collect measure data for radar visualization.")
+    parser.add_argument("-i", "--inputfiles", help="Input COOM RDF files.", nargs="+", required=True)
     return parser.parse_args()
 
 
 def main() -> None:
-    """Parse CLI arguments and run the COOM description pipeline."""
+    """Parse CLI arguments and run the radar-data collection pipeline."""
     logging.basicConfig(level=logging.INFO)
     args = parse_args()
-    app = COOMDescribe(Path(args.inputfile))
-    app.describe()
+    app = COOMDescribe([Path(inputfile) for inputfile in args.inputfiles])
+    radar_data = app.describe()
+    print(radar_data)
 
 
 if __name__ == "__main__":

@@ -16,7 +16,7 @@ class KnowledgeAverageCountRegressionTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[1]
         graph = Graph()
         graph.parse(root / "resources" / "examples" / "capsuleCoffee_analysis.ttl", format="turtle")
-        query = (root / "resources" / "measures" / "knowledge_feature_average.sparql").read_text(
+        query = (root / "resources" / "measures" / "knowledge_feature_average_as_str.sparql").read_text(
             encoding="utf-8"
         )
 

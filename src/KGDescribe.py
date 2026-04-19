@@ -6,6 +6,7 @@ from pathlib import Path
 
 from rdflib import Graph
 from typing import List
+
 from ResultPrinter import ResultPrinter
 
 
@@ -22,10 +23,11 @@ class KGDescribe:
         self.graph = Graph()
         self.graph.parse(self.filename, format="turtle")
 
-    def run_measures(self, measure_definitions: List[Path]) -> None:
-        """Execute all configured SPARQL measures and collect their result rows."""
+    def run_measures(self, measure_definitions: List[Path]) -> dict:
+        """Execute all configured SPARQL measures and return the collected values."""
         start_time = time.perf_counter()
         logging.info("Running measures for input file: %s", self.filename)
+        results_by_measure = {}
         for measure_def in measure_definitions:
             logging.info("Running measure: %s", measure_def)
             query = measure_def.read_text(encoding="utf-8")
@@ -35,13 +37,17 @@ class KGDescribe:
                 logging.exception("Failed to execute measure %s", measure_def)
                 raise
             for row in results:
-                self.result_printer.add_row(measure_def.name, str(row["count"].toPython()))
+                value = str(row["count"].toPython())
+                self.result_printer.add_row(measure_def.name, value)
+                results_by_measure[measure_def.stem] = value
         elapsed = time.perf_counter() - start_time
         logging.info("run_measures completed in %.3f seconds", elapsed)
+        return results_by_measure
 
-    def describe(self):
+    def describe(self, measure_definitions: List[Path]):
         """Print the collected measure results as a small table."""
-        self.result_printer.print()
+        self.run_measures(measure_definitions)
+        print(self.result_printer.print_as_markdown())
 
 
 def parse_args() -> argparse.Namespace:
@@ -55,17 +61,16 @@ if __name__ == "__main__":
     args = parse_args()
     measure_ws = Path(__file__).parent / "resources" / "measures"
     measures = [
-        measure_ws / "choice_feature_count.sparql",
+        measure_ws / "choice_feature_count_as_str.sparql",
         measure_ws / "num_feature_count.sparql",
         measure_ws / "text_feature_count.sparql",
         measure_ws / "feature_choice_count.sparql",
-        measure_ws / "component_count.sparql",
+        measure_ws / "component_count_as_str.sparql",
         measure_ws / "avg_terminology_depth.sparql",
         measure_ws / "knowledge_count.sparql",
-        measure_ws / "knowledge_feature_average.sparql",
-        measure_ws / "inverse_knowledge_feature_average.sparql",
+        measure_ws / "knowledge_feature_average_as_str.sparql",
+        measure_ws / "inverse_knowledge_feature_average_as_str.sparql",
     ]
     app = KGDescribe()
     app.load(Path(args.inputfile))
-    app.run_measures(measures)
-    app.describe()
+    app.describe(measures)

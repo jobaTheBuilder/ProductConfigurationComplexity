@@ -1,6 +1,6 @@
 PREFIX : <http://www.example.org/ns#>
 
-SELECT (AVG(?knowledgeCount) AS ?count)
+SELECT (MIN(?knowledgeCount) AS ?count)
 WHERE {
     ?feature a :FEATURE .
     OPTIONAL {

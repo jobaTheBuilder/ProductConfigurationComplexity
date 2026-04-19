@@ -1,0 +1,13 @@
+PREFIX : <http://www.example.org/ns#>
+
+SELECT (MAX(?childCount) AS ?count)
+WHERE {
+    {
+        SELECT ?component (COUNT(?child) AS ?childCount)
+        WHERE {
+            ?component a :COMPONENT .
+            OPTIONAL { ?component :has ?child . }
+        }
+        GROUP BY ?component
+    }
+}

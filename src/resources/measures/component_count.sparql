@@ -1,25 +1,6 @@
 PREFIX : <http://www.example.org/ns#>
 
-SELECT ( CONCAT( STR(?componentCount), " (avg succ: ",
-                 STR(ROUND(?avgHas * 100) / 100),
-                 ", min: ", STR(?minHas),
-                 ", max: ", STR(?maxHas), ")" ) AS ?count )
+SELECT (COUNT(?component) AS ?count)
 WHERE {
-    {
-        SELECT
-            (COUNT(?component) AS ?componentCount)
-            (AVG(?hasCount) AS ?avgHas)
-            (MIN(?hasCount) AS ?minHas)
-            (MAX(?hasCount) AS ?maxHas)
-        WHERE {
-            {
-                SELECT ?component (COUNT(?child) AS ?hasCount)
-                WHERE {
-                    ?component a :COMPONENT .
-                    OPTIONAL { ?component :has ?child . }
-                }
-                GROUP BY ?component
-            }
-        }
-    }
+    ?component a :COMPONENT .
 }
