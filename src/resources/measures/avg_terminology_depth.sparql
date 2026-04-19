@@ -1,0 +1,23 @@
+PREFIX : <http://www.example.org/ns#>
+
+SELECT (AVG(?depth) AS ?count)
+WHERE {
+    {
+        SELECT ?leaf ((COUNT(DISTINCT ?ancestor) - 1) AS ?depth)
+        WHERE {
+            ?leaf a ?leafType .
+            FILTER (?leafType IN (:COMPONENT, :FEATURE))
+
+            FILTER NOT EXISTS {
+                ?leaf :has ?child .
+                ?child a ?childType .
+                FILTER (?childType IN (:COMPONENT, :FEATURE))
+            }
+
+            ?ancestor a ?ancestorType .
+            FILTER (?ancestorType IN (:COMPONENT, :FEATURE))
+            ?ancestor :has* ?leaf .
+        }
+        GROUP BY ?leaf
+    }
+}

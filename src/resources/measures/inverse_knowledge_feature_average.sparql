@@ -1,0 +1,28 @@
+PREFIX : <http://www.example.org/ns#>
+
+SELECT ( CONCAT( STR(ROUND(?avgFeatureCount * 100) / 100),
+           " (min: ", STR(?minFeatureCount),
+           ", max: ", STR(?maxFeatureCount), ")" ) AS ?count )
+WHERE {
+    {
+        SELECT
+            (AVG(?featureCount) AS ?avgFeatureCount)
+            (MIN(?featureCount) AS ?minFeatureCount)
+            (MAX(?featureCount) AS ?maxFeatureCount)
+        WHERE {
+            ?knowledge a :KNOWLEDGE .
+            OPTIONAL {
+                SELECT ?knowledge
+                       (COUNT(DISTINCT ?feature) AS ?featureCountRaw)
+                WHERE {
+                    VALUES ?relation {
+                        :constrains :conditions :consequences }
+                    ?knowledge ?relation ?feature .
+                    ?feature a :FEATURE .
+                }
+                GROUP BY ?knowledge
+            }
+            BIND(COALESCE(?featureCountRaw, 0) AS ?featureCount)
+        }        
+    }
+}

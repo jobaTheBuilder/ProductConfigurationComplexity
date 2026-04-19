@@ -1,0 +1,29 @@
+@prefix vis: <http://www.example.org/vis#> .
+
+vis:graph vis:config "   layout=dot;" .
+vis:graph vis:config "   rankdir=LR" .
+:COMPONENT vis:template "COMPONENT" .
+:KNOWLEDGE vis:template "KNOWLEDGE" .
+:b1 vis:template "KNOWLEDGE" .
+:b2 vis:template "KNOWLEDGE" .
+:b3 vis:template "KNOWLEDGE" .
+:Struct_root vis:template "COMPONENT" .
+:Struct_BrewingUnit vis:template "COMPONENT" .
+:Struct_WaterTank vis:template "COMPONENT" .
+:BrewingUnit_capsuleType vis:template "FEATURE" .
+:WaterTank_tankMaterial vis:template "FEATURE" . 
+:BrewingUnit_pumpPressure vis:template "FEATURE" .
+:WaterTank_tankCapacity  vis:template "FEATURE" .
+
+:TankMaterial_Glass vis:template "OPTION_VALUE" .
+:TankMaterial_Plastic  vis:template "OPTION_VALUE" .
+
+:CapsuleType_Proprietary vis:template "OPTION_VALUE" .
+:CapsuleType_Standard vis:template "OPTION_VALUE" .
+
+:PumpPressure_P15 vis:template "OPTION_VALUE" .
+:PumpPressure_P19 vis:template "OPTION_VALUE" .
+
+:TankCapacity_V700 vis:template "OPTION_VALUE" .
+:TankCapacity_V1000 vis:template "OPTION_VALUE" .
+:TankCapacity_V1500 vis:template "OPTION_VALUE" .

@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="d2" for="edge" attr.name="weight" attr.type="double" />
+  <key id="d1" for="node" attr.name="color" attr.type="string" />
+  <key id="d0" for="node" attr.name="label" attr.type="string" />
+  <graph edgedefault="undirected">
+    <node id="id_1">
+      <data key="d0">b2</data>
+      <data key="d1">#ADD8E6</data>
+    </node>
+    <node id="id_2">
+      <data key="d0">BrewingUnit_capsuleType</data>
+      <data key="d1">#fe6f5e</data>
+    </node>
+    <node id="id_3">
+      <data key="d0">BrewingUnit_pumpPressure</data>
+      <data key="d1">#fe6f5e</data>
+    </node>
+    <node id="id_4">
+      <data key="d0">b1</data>
+      <data key="d1">#ADD8E6</data>
+    </node>
+    <node id="id_5">
+      <data key="d0">WaterTank_tankMaterial</data>
+      <data key="d1">#fe6f5e</data>
+    </node>
+    <node id="id_6">
+      <data key="d0">WaterTank_tankCapacity</data>
+      <data key="d1">#fe6f5e</data>
+    </node>
+    <node id="id_7">
+      <data key="d0">b3</data>
+      <data key="d1">#ADD8E6</data>
+    </node>
+    <edge source="id_1" target="id_2">
+      <data key="d2">1.5</data>
+    </edge>
+    <edge source="id_1" target="id_3">
+      <data key="d2">1.5</data>
+    </edge>
+    <edge source="id_3" target="id_7">
+      <data key="d2">1.5</data>
+    </edge>
+    <edge source="id_4" target="id_5">
+      <data key="d2">1.5</data>
+    </edge>
+    <edge source="id_4" target="id_6">
+      <data key="d2">1.5</data>
+    </edge>
+    <edge source="id_6" target="id_7">
+      <data key="d2">1.5</data>
+    </edge>
+  </graph>
+</graphml>

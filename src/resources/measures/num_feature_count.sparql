@@ -1,0 +1,6 @@
+PREFIX : <http://www.example.org/ns#>
+
+SELECT (COUNT(?feature) AS ?count)
+WHERE {
+    ?feature :has :numerical_range .
+}

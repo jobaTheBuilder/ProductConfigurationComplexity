@@ -1,0 +1,53 @@
+@prefix g: <http://www.example.org/ns#> .
+
+g:Struct_AddonT a g:COMPONENT ;
+    g:has g:AddonT_frameText,
+        g:AddonT_printedOnFrame .
+
+g:Struct_BagT a g:COMPONENT ;
+    g:has g:BagT_color,
+        g:BagT_volume .
+
+g:Struct_BikeT a g:COMPONENT ;
+    g:has g:BikeT_bag,
+        g:BikeT_frameColor,
+        g:BikeT_tire .
+
+g:Struct_root a g:COMPONENT ;
+    g:has g:root_addon,
+        g:root_bike .
+
+g:AddonT_frameText a g:FEATURE ;
+    g:has g:textual_range .
+
+g:AddonT_printedOnFrame a g:FEATURE ;
+    g:has g:false,
+        g:true .
+
+g:BagT_color a g:FEATURE ;
+    g:has g:ColorT_black,
+        g:ColorT_blue,
+        g:ColorT_red,
+        g:ColorT_yellow .
+
+g:BagT_volume a g:FEATURE ;
+    g:has g:numerical_range .
+
+g:BikeT_bag a g:FEATURE .
+
+g:BikeT_frameColor a g:FEATURE ;
+    g:has g:ColorT_black,
+        g:ColorT_blue,
+        g:ColorT_red,
+        g:ColorT_yellow .
+
+g:BikeT_tire a g:FEATURE ;
+    g:has g:TireT_t22,
+        g:TireT_t24,
+        g:TireT_t26,
+        g:TireT_t28 .
+
+g:root_addon a g:FEATURE .
+
+g:root_bike a g:FEATURE .
+

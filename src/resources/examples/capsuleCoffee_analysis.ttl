@@ -1,0 +1,47 @@
+@prefix : <http://www.example.org/ns#> .
+
+:Struct_root a :COMPONENT ;
+    :has :Struct_BrewingUnit,
+        :Struct_WaterTank .
+
+:b1 a :KNOWLEDGE ;
+    :constrains :WaterTank_tankCapacity,
+        :WaterTank_tankMaterial .
+
+:b2 a :KNOWLEDGE ;
+    :constrains :BrewingUnit_capsuleType,
+        :BrewingUnit_pumpPressure .
+
+:b3 a :KNOWLEDGE ;
+    :constrains :BrewingUnit_pumpPressure,
+        :WaterTank_tankCapacity .
+
+:root_brewingUnit a :FEATURE .
+
+:root_waterTank a :FEATURE .
+
+:Struct_BrewingUnit a :COMPONENT ;
+    :has :BrewingUnit_capsuleType,
+        :BrewingUnit_pumpPressure .
+
+:Struct_WaterTank a :COMPONENT ;
+    :has :WaterTank_tankCapacity,
+        :WaterTank_tankMaterial .
+
+:BrewingUnit_capsuleType a :FEATURE ;
+    :has :CapsuleType_Proprietary,
+        :CapsuleType_Standard .
+
+:WaterTank_tankMaterial a :FEATURE ;
+    :has :TankMaterial_Glass,
+        :TankMaterial_Plastic .
+
+:BrewingUnit_pumpPressure a :FEATURE ;
+    :has :PumpPressure_P15,
+        :PumpPressure_P19 .
+
+:WaterTank_tankCapacity a :FEATURE ;
+    :has :TankCapacity_V1000,
+        :TankCapacity_V1500,
+        :TankCapacity_V700 .
+
