@@ -1,19 +1,28 @@
 import argparse
 from pathlib import Path
+from typing import List
 
-from rdflib import Graph, Namespace, RDF, URIRef
+from rdflib import BNode, Graph, Namespace, RDF, URIRef
 from rdflib.namespace import split_uri
 from rdflib.collection import Collection
 
 
 class COOM2AnalysisKnowledgeGraph:
     def __init__(self, input_path: Path):
+        """Load a COOM RDF graph that will be converted into the analysis graph."""
         self.COOM = Namespace("http://www.denkbares.com/coomV2#")
         self.EX = Namespace("http://www.example.org/ns#")
         self.FEATURE = self.COOM["Feature"]
         self.COMPONENT = self.COOM["Structure"]
         self.COOM_TYPE = self.COOM["type"]
         self.COOM_COMBINATIONS = self.COOM["Combinations"]
+        self.COOM_KNOWLEDGE_TYPES = (
+            self.COOM["Requirement"],
+            self.COOM["Combinations"],
+            self.COOM["DefaultValue"],
+            self.COOM["InstanceExists"],
+            self.COOM["Implication"],
+        )
 
         self.EX_COMPONENT = self.EX["COMPONENT"]
         self.EX_FEATURE = self.EX["FEATURE"]
@@ -30,7 +39,16 @@ class COOM2AnalysisKnowledgeGraph:
         self.input_graph = Graph()
         self.input_graph.parse(input_path)
 
+    def _local_name_for(self, term) -> str:
+        """Return a usable local identifier for URI refs and blank nodes."""
+        if isinstance(term, BNode):
+            return str(term)
+
+        _, local_name = split_uri(str(term))
+        return local_name
+
     def export(self, out_path: Path):
+        """Build and serialize the analysis knowledge graph for the loaded COOM model."""
         output_graph = Graph()
         output_graph.bind("", self.EX)
         self._generate_features(output_graph)
@@ -39,9 +57,10 @@ class COOM2AnalysisKnowledgeGraph:
         output_graph.serialize(out_path)
 
     def _generate_components(self, output_graph):
+        """Create component nodes and structural :has edges in the output graph."""
         for c in self.input_graph.subjects(RDF.type, self.COMPONENT):
             # BUILDING RULE Component Node (CN)
-            namespace, local_name = split_uri(str(c))
+            local_name = self._local_name_for(c)
             cv = URIRef(self.EX + local_name)
             output_graph.add((cv, RDF.type, self.EX_COMPONENT))
             self.coom2kg[c] = cv
@@ -50,7 +69,7 @@ class COOM2AnalysisKnowledgeGraph:
             feature_list_node = self.input_graph.value(c, self.COOM["hasFeature"])
             features = Collection(self.input_graph, feature_list_node)
             for feature in features:
-                namespace, local_name = split_uri(str(feature))
+                local_name = self._local_name_for(feature)
                 fv = URIRef(self.EX + local_name)
 
                 # check, is the feature a structure type itself?
@@ -59,16 +78,17 @@ class COOM2AnalysisKnowledgeGraph:
                 if feature_type:
                     type_of_feature_type = self.input_graph.value(feature_type, RDF.type)
                     if type_of_feature_type == self.COOM["Structure"]:
-                        namespace, local_name = split_uri(str(feature_type))
+                        local_name = self._local_name_for(feature_type)
                         fv = URIRef(self.EX + local_name)
 
                 output_graph.add((cv, self.EX_HAS, fv))
                 self.coom2kg[feature] = fv
 
     def _generate_features(self, output_graph: Graph):
+        """Create feature nodes and connect them to their admissible values."""
         for f in self.input_graph.subjects(RDF.type, self.FEATURE):
             # BUILDING RULE: FEATURE NODE (FN)
-            namespace, local_name = split_uri(str(f))
+            local_name = self._local_name_for(f)
             fv = URIRef(self.EX + local_name)
             output_graph.add((fv, RDF.type, self.EX_FEATURE))
             self.coom2kg[f] = fv
@@ -82,22 +102,21 @@ class COOM2AnalysisKnowledgeGraph:
                     self.coom2kg[option] = option_uri
 
     def _generate_knowledge(self, output_graph: Graph):
-        self._generate_knowledge_combinations(output_graph)
-        # todo: build the other knowledge elements, e.g., requirements
-
-    def _generate_knowledge_combinations(self, output_graph: Graph):
+        """Create knowledge nodes and link them to the features they constrain."""
         constrains_feature = self.COOM["constrainsFeature"]
-        for b in self.input_graph.subjects(RDF.type, self.COOM_COMBINATIONS):
-            # Knowledge Node (CN): For each behaviour knowledge create a node with link to KNOWLEDGE type node
-            namespace, local_name = split_uri(str(b))
-            knode = URIRef(self.EX + local_name)
-            output_graph.add((knode, RDF.type, self.EX_KNOWLEDGE))
-            for cf in self.input_graph.objects(b, constrains_feature):
-                # Constraints Edge(CE3)
-                cfeature = self.coom2kg[cf]
-                output_graph.add((knode, self.EX_CONSTRAINS, cfeature))
+        for knowledge_type in self.COOM_KNOWLEDGE_TYPES:
+            for b in self.input_graph.subjects(RDF.type, knowledge_type):
+                # Knowledge Node (CN): For each behaviour knowledge create a node with link to KNOWLEDGE type node
+                local_name = self._local_name_for(b)
+                knode = URIRef(self.EX + local_name)
+                output_graph.add((knode, RDF.type, self.EX_KNOWLEDGE))
+                for cf in self.input_graph.objects(b, constrains_feature):
+                    # Constraints Edge(CE3)
+                    cfeature = self.coom2kg[cf]
+                    output_graph.add((knode, self.EX_CONSTRAINS, cfeature))
 
-    def _get_values_of(self, f) -> list[str]:
+    def _get_values_of(self, f) -> List[str]:
+        """Return the analysis-graph value nodes for one COOM feature."""
         the_type = self.input_graph.value(f, self.COOM_TYPE)
         if the_type == self.COOM["Boolean"]:
             return ["true", "false"]
@@ -110,7 +129,7 @@ class COOM2AnalysisKnowledgeGraph:
             options = Collection(self.input_graph, options_node)
             str_options = []
             for option in options:
-                namespace, local_name = split_uri(str(option))
+                local_name = self._local_name_for(option)
                 str_options.append(local_name)
             return str_options
 
