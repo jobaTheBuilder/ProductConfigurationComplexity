@@ -1,0 +1,23 @@
+measures:
+#  - avg_terminology_depth.sparql
+  - choice_feature_count.sparql
+  - choice_feature_count_as_str.sparql
+  - choice_feature_count_avg.sparql
+  - choice_feature_count_max.sparql
+  - choice_feature_count_min.sparql
+  - component_count.sparql
+  - component_count_as_str.sparql
+  - component_count_avg.sparql
+  - component_count_max.sparql
+  - component_count_min.sparql
+  - inverse_knowledge_feature_average.sparql
+  - inverse_knowledge_feature_average_as_str.sparql
+  - inverse_knowledge_feature_max.sparql
+  - inverse_knowledge_feature_min.sparql
+  - knowledge_count.sparql
+  - knowledge_feature_average.sparql
+  - knowledge_feature_average_as_str.sparql
+  - knowledge_feature_max.sparql
+  - knowledge_feature_min.sparql
+  - num_feature_count.sparql
+  - text_feature_count.sparql
