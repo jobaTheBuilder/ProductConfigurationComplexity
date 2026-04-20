@@ -136,11 +136,27 @@ class COOM2AnalysisKnowledgeGraph:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Example app to convert COOM RDF to Analysis Knowledge Graph.")
-    parser.add_argument("-i", "--inputfile", help="Input COOM RDF file", required=True)
-    parser.add_argument("-o", "--outfile", help="Output RDF file.", required=True)
-    return parser.parse_args()
+    parser.add_argument("-i", "--inputfile", help="Input COOM RDF file")
+    parser.add_argument("-o", "--outfile", help="Output RDF file.")
+    parser.add_argument("-d", "--inputdir", help="Input directory containing COOM RDF files (*.ttl).")
+    args = parser.parse_args()
+
+    if args.inputdir:
+        if args.inputfile or args.outfile:
+            parser.error("-d/--inputdir cannot be combined with -i/--inputfile or -o/--outfile.")
+    elif not (args.inputfile and args.outfile):
+        parser.error("Either provide -d/--inputdir or both -i/--inputfile and -o/--outfile.")
+
+    return args
 
 if __name__ == "__main__":
     args = parse_args()
-    app = COOM2AnalysisKnowledgeGraph(Path(args.inputfile))
-    app.export(Path(args.outfile))
+    if args.inputdir:
+        input_dir = Path(args.inputdir)
+        for input_file in sorted(input_dir.glob("*.ttl")):
+            output_file = input_file.with_name(f"{input_file.stem}_analysis{input_file.suffix}")
+            app = COOM2AnalysisKnowledgeGraph(input_file)
+            app.export(output_file)
+    else:
+        app = COOM2AnalysisKnowledgeGraph(Path(args.inputfile))
+        app.export(Path(args.outfile))
