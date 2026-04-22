@@ -109,11 +109,15 @@ class COOM2AnalysisKnowledgeGraph:
                 # Knowledge Node (CN): For each behaviour knowledge create a node with link to KNOWLEDGE type node
                 local_name = self._local_name_for(b)
                 knode = URIRef(self.EX + local_name)
-                output_graph.add((knode, RDF.type, self.EX_KNOWLEDGE))
+                added_constraints = 0
                 for cf in self.input_graph.objects(b, constrains_feature):
                     # Constraints Edge(CE3)
                     cfeature = self.coom2kg[cf]
                     output_graph.add((knode, self.EX_CONSTRAINS, cfeature))
+                    added_constraints += 1
+                if added_constraints > 0:
+                    output_graph.add((knode, RDF.type, self.EX_KNOWLEDGE))
+
 
     def _get_values_of(self, f) -> List[str]:
         """Return the analysis-graph value nodes for one COOM feature."""
@@ -139,6 +143,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("-i", "--inputfile", help="Input COOM RDF file")
     parser.add_argument("-o", "--outfile", help="Output RDF file.")
     parser.add_argument("-d", "--inputdir", help="Input directory containing COOM RDF files (*.ttl).")
+    parser.add_argument("--outdir", help="Output directory for generated analysis RDF files in batch mode.")
     args = parser.parse_args()
 
     if args.inputdir:
@@ -146,6 +151,8 @@ def parse_args() -> argparse.Namespace:
             parser.error("-d/--inputdir cannot be combined with -i/--inputfile or -o/--outfile.")
     elif not (args.inputfile and args.outfile):
         parser.error("Either provide -d/--inputdir or both -i/--inputfile and -o/--outfile.")
+    elif args.outdir:
+        parser.error("--outdir can only be used together with -d/--inputdir.")
 
     return args
 
@@ -153,8 +160,10 @@ if __name__ == "__main__":
     args = parse_args()
     if args.inputdir:
         input_dir = Path(args.inputdir)
+        output_dir = Path(args.outdir) if args.outdir else input_dir
+        output_dir.mkdir(parents=True, exist_ok=True)
         for input_file in sorted(input_dir.glob("*.ttl")):
-            output_file = input_file.with_name(f"{input_file.stem}_analysis{input_file.suffix}")
+            output_file = output_dir / f"{input_file.stem}_analysis{input_file.suffix}"
             app = COOM2AnalysisKnowledgeGraph(input_file)
             app.export(output_file)
     else:

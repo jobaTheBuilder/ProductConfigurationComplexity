@@ -1,23 +1,45 @@
 measures:
-#  - avg_terminology_depth.sparql
-  - choice_feature_count.sparql
-  - choice_feature_count_as_str.sparql
-  - choice_feature_count_avg.sparql
-  - choice_feature_count_max.sparql
-  - choice_feature_count_min.sparql
-  - component_count.sparql
-  - component_count_as_str.sparql
-  - component_count_avg.sparql
-  - component_count_max.sparql
-  - component_count_min.sparql
-  - inverse_knowledge_feature_average.sparql
-  - inverse_knowledge_feature_average_as_str.sparql
-  - inverse_knowledge_feature_max.sparql
-  - inverse_knowledge_feature_min.sparql
-  - knowledge_count.sparql
-  - knowledge_feature_average.sparql
-  - knowledge_feature_average_as_str.sparql
-  - knowledge_feature_max.sparql
-  - knowledge_feature_min.sparql
-  - num_feature_count.sparql
-  - text_feature_count.sparql
+#  - name: avg_terminology_depth
+#    file: avg_terminology_depth.sparql
+  - name: choice_feature_count
+    file: choice_feature_count.sparql
+  - name: choice_feature_count_as_str
+    file: choice_feature_count_as_str.sparql
+  - name: choice_feature_count_avg
+    file: choice_feature_count_avg.sparql
+  - name: choice_feature_count_max
+    file: choice_feature_count_max.sparql
+  - name: choice_feature_count_min
+    file: choice_feature_count_min.sparql
+  - name: component_count
+    file: component_count.sparql
+  - name: component_count_as_str
+    file: component_count_as_str.sparql
+  - name: component_count_avg
+    file: component_count_avg.sparql
+  - name: component_count_max
+    file: component_count_max.sparql
+  - name: component_count_min
+    file: component_count_min.sparql
+  - name: inverse_knowledge_feature_average
+    file: inverse_knowledge_feature_average.sparql
+  - name: inverse_knowledge_feature_average_as_str
+    file: inverse_knowledge_feature_average_as_str.sparql
+  - name: inverse_knowledge_feature_max
+    file: inverse_knowledge_feature_max.sparql
+  - name: inverse_knowledge_feature_min
+    file: inverse_knowledge_feature_min.sparql
+  - name: knowledge_count
+    file: knowledge_count.sparql
+  - name: knowledge_feature_average
+    file: knowledge_feature_average.sparql
+  - name: knowledge_feature_average_as_str
+    file: knowledge_feature_average_as_str.sparql
+  - name: knowledge_feature_max
+    file: knowledge_feature_max.sparql
+  - name: knowledge_feature_min
+    file: knowledge_feature_min.sparql
+  - name: num_feature_count
+    file: num_feature_count.sparql
+  - name: text_feature_count
+    file: text_feature_count.sparql

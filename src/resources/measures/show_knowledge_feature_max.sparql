@@ -1,0 +1,19 @@
+PREFIX : <http://www.example.org/ns#>
+
+SELECT ?feature ?knowledgeCount
+WHERE {
+    ?feature a :FEATURE .
+    OPTIONAL {
+        SELECT ?feature
+               (COUNT(DISTINCT ?knowledge) AS ?knowledgeCountRaw)
+        WHERE {
+            VALUES ?relation {
+                   :constrains :conditions :consequences }
+            ?knowledge ?relation ?feature .
+        }
+        GROUP BY ?feature
+    }
+    BIND(COALESCE(?knowledgeCountRaw, 0) AS ?knowledgeCount)
+}
+ORDER BY DESC(?knowledgeCount) ?feature
+LIMIT 10

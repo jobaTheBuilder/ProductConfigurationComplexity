@@ -4,9 +4,23 @@ Measure the complexity for product configuration knowledge. Scripts for referenc
 
 ## Important Classes
 
-- `COOM2AnalysisKnowledgeGraph`: Converts a COOM RDF model into an analysis knowledge graph. The _analysis knowledge graph_ is then the basis for the complexity measures, e.g., target of the SPARQL queries.
-- `KGDescribe`: Loads _analysis knowledge graphs_ from a given directory, runs the configured SPARQL measures, and returns or prints the results. The SPARQL queries are defined in `src/resources/measures` and can be configured by a YAML file.
-- `COOMDescribe`: Combines `KGDescribe` and `COOM2AnalysisKnowledgeGraph` into a single class.
+### COOM2AnalysisKnowledgeGraph
+
+Usually, the first step:
+Convert a COOM RDF model into an _analysis knowledge graph_. 
+The _analysis knowledge graph_ is then the basis for the complexity measures, e.g., target of the SPARQL queries.
+You may rename the generated graph using `Tooling.rename_files` (this will give the filenames a anonamized version).
+
+### KGDescribe
+
+The second step: 
+Loads _analysis knowledge graphs_ from a given directory, runs the configured SPARQL measures, and returns or prints the results. 
+The used measures are configured by a YAML file, e,.g., `src/resources/measures/all_measures.yaml`.
+The actual reference implementation of measures can be found in `src/resources/measures` .
+
+### COOMDescribe
+
+Helpoer class to combines `COOM2AnalysisKnowledgeGraph` and `KGDescribe` and  into a single run.
 
 ## Helper Classes
 - `ResultPrinter`: Formats collected measure results as a compact Markdown table.

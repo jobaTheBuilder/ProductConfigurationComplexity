@@ -1,0 +1,5 @@
+measures:
+  - name: "Max choice values"
+    file: show_choice_feature_count_max.sparql
+  - name: "Max knowledge per Feature"
+    file: show_knowledge_feature_max.sparql

@@ -1,0 +1,17 @@
+PREFIX : <http://www.example.org/ns#>
+
+SELECT ?feature ?childCount
+WHERE {
+    ?feature a :FEATURE .
+    OPTIONAL {
+        SELECT ?feature (COUNT(?child) AS ?childCountRaw)
+        WHERE {
+            ?feature :has ?child .
+            FILTER (?child NOT IN (:numerical_range, :textual_range))
+        }
+        GROUP BY ?feature
+    }
+    BIND(COALESCE(?childCountRaw, 0) AS ?childCount)
+}
+ORDER BY DESC(?childCount) ?feature
+LIMIT 10
