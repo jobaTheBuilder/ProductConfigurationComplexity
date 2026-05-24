@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import logging
 import time
+from datetime import datetime
 from pathlib import Path
 from typing import List
 
@@ -26,6 +27,7 @@ class KGDescribe:
         self.result_printer = ResultPrinter()
         self.settings = MeasureSettings(setting_file)
         self.measure_definitions = self.settings.load_measure_definitions()
+        self.netdiagram_measures = []
 
 
     def load(self, filename: Path, syntax="turtle") -> None:
@@ -51,7 +53,7 @@ class KGDescribe:
                 results_by_measure[measure_def.name] = value
         return results_by_measure
 
-    def describe(self, input_files: List[Path]) -> None:
+    def describe(self, input_files: List[Path], latex_file_name=None, netdiagram_file_name=None) -> None:
         """Print the collected measure results as a table with one column per input file."""
         start_time = time.perf_counter()
         self.result_printer = ResultPrinter()
@@ -63,10 +65,19 @@ class KGDescribe:
         elapsed = time.perf_counter() - start_time
         logging.info("describe completed in %.3f seconds", elapsed)
         print(self.result_printer.print_as_markdown())
-        output_directory = input_files[0].parent
-        output_path = output_directory / "casestudy.tex"
-        output_path.write_text(self.result_printer.print_as_latex(), encoding="utf-8")
-        logging.info("Wrote LaTeX output to %s", output_path)
+
+        if netdiagram_file_name:
+            output_directory = input_files[0].parent
+            netdiagram_path = output_directory / netdiagram_file_name
+            self.result_printer.print_netdiagram(
+                measures=self.netdiagram_measures,
+                output_path=str(netdiagram_path),
+            )
+            logging.info("Wrote net diagram output to %s", netdiagram_path)
+        if latex_file_name:
+            output_path = output_directory / latex_file_name
+            output_path.write_text(self.result_printer.print_as_latex(), encoding="utf-8")
+            logging.info("Wrote LaTeX output to %s", output_path)
 
 def resolve_input_files(inputdir: str) -> List[Path]:
     input_files: List[Path] = []
@@ -97,9 +108,54 @@ def parse_args() -> argparse.Namespace:
     return args
 
 
+def write_run_log(args: argparse.Namespace, rdf_files: List[Path], total_minutes: float) -> Path:
+    """Write a Markdown summary of input arguments, files, and total runtime."""
+    output_directory = rdf_files[0].parent
+    log_path = output_directory / "log.md"
+    execution_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_lines = [
+        "# Run Summary",
+        "",
+        "## Arguments",
+        f"- inputdir: `{args.inputdir}`",
+        f"- settings: `{args.settings}`",
+        "",
+        "## Files Used",
+        *[f"- `{file_path}`" for file_path in rdf_files],
+        "",
+        "## Runtime and Date",
+        f"- `{execution_date}`",
+        f"- Total execution time: `{total_minutes:.3f}` minutes",
+        "",
+    ]
+    log_path.write_text("\n".join(log_lines), encoding="utf-8")
+    return log_path
+
+
 if __name__ == "__main__":
+    NETDIAGRAM_MEASURES = [
+        "Terminology Depth (avg)",
+        "Component Count",
+        "- avg sub-component/features",
+        "- max sub-component/features",
+        "Numerical Feature Count",
+        "Text Feature Count",
+        "Choice Feature Count",
+        "- avg choice values",
+        "- max choice values",
+        "Knowledge Count",
+        "Knowledge per Feature (avg)",
+        "Features per Knowledge (avg)",
+    ]
+
     logging.basicConfig(level=logging.INFO)
+    run_start_time = time.perf_counter()
     args = parse_args()
     rdf_files = resolve_input_files(args.inputdir)
     app = KGDescribe(args.settings)
-    app.describe(rdf_files)
+    app.netdiagram_measures = NETDIAGRAM_MEASURES
+    app.describe(rdf_files, latex_file_name="casestudy.tex", netdiagram_file_name="netdiagram.png")
+
+    total_minutes = (time.perf_counter() - run_start_time) / 60.0
+    log_path = write_run_log(args, rdf_files, total_minutes)
+    logging.info("Wrote run summary to %s", log_path.resolve())

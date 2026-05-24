@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import math
 from typing import Dict, List
+
+import matplotlib.pyplot as plt
 
 
 class ResultPrinter:
+    """Collects measure results and renders them as Markdown or LaTeX tables."""
+
     def __init__(self) -> None:
         self.columns: List[str] = []
         self.rows_by_measure: Dict[str, Dict[str, str]] = {}
@@ -46,13 +51,25 @@ class ResultPrinter:
         header_line = " & ".join(
             rf"\textbf{{{self._escape_latex(header)}}}" for header in headers
         ) + r" \\"
-        body_lines = [
-            " & ".join(
-                self._format_latex_cell(cell, column_index)
-                for column_index, cell in enumerate(row)
-            ) + r" \\ \hline"
-            for row in printable_rows
-        ]
+        body_lines = []
+        for row in printable_rows:
+            numeric_values = [
+                self._parse_numeric(cell)
+                for cell in row[1:]
+            ]
+            max_value = max((value for value in numeric_values if value is not None), default=None)
+
+            formatted_row = []
+            for column_index, cell in enumerate(row):
+                is_largest = (
+                    column_index > 0
+                    and max_value is not None
+                    and self._parse_numeric(cell) == max_value
+                )
+                formatted_row.append(
+                    self._format_latex_cell(cell, column_index, bold=is_largest)
+                )
+            body_lines.append(" & ".join(formatted_row) + r" \\ \hline")
 
         return "\n".join(
             [
@@ -65,6 +82,69 @@ class ResultPrinter:
                 r"\end{tabular}",
             ]
         )
+
+    def print_netdiagram(self, measures: List[str], output_path: str = "netdiagram.png") -> str:
+        """Generate a radar/net diagram for selected measures across all knowledge-base columns."""
+        if not measures:
+            raise ValueError("At least one measure must be provided.")
+        if not self.columns:
+            raise ValueError("No columns available to plot.")
+
+        selected_measures: List[str] = []
+        normalized_rows: List[List[float]] = []
+
+        for requested_measure in measures:
+            matching_key = next(
+                (
+                    key
+                    for key in self.rows_by_measure
+                    if self._format_measure(key) == requested_measure
+                ),
+                None,
+            )
+            if matching_key is None:
+                raise ValueError(f"Unknown measure: {requested_measure}")
+
+            parsed_values = []
+            for column in self.columns:
+                raw_value = self.rows_by_measure[matching_key].get(column, "")
+                numeric = self._parse_numeric(raw_value)
+                parsed_values.append(numeric if numeric is not None else 0.0)
+
+            smoothed_values = [math.log1p(value) for value in parsed_values]
+            row_min = min(smoothed_values)
+            row_max = max(smoothed_values)
+            if row_max == row_min:
+                normalized = [0.0 for _ in smoothed_values]
+            else:
+                normalized = [
+                    (value - row_min) / (row_max - row_min)
+                    for value in smoothed_values
+                ]
+
+            selected_measures.append(requested_measure)
+            normalized_rows.append(normalized)
+
+        figure, axis = plt.subplots(figsize=(8, 8), subplot_kw={"projection": "polar"})
+        angles = [2 * math.pi * i / len(selected_measures) for i in range(len(selected_measures))]
+        closed_angles = [*angles, angles[0]]
+
+        for column_index, column in enumerate(self.columns):
+            series = [row[column_index] for row in normalized_rows]
+            closed_series = [*series, series[0]]
+            axis.plot(closed_angles, closed_series, label=column)
+            axis.fill(closed_angles, closed_series, alpha=0.1)
+
+        axis.set_xticks(angles)
+        axis.set_xticklabels(selected_measures)
+        axis.set_ylim(0, 1)
+        axis.set_title("Normalized Net Diagram")
+        axis.legend(loc="upper right", bbox_to_anchor=(1.25, 1.1))
+
+        figure.tight_layout()
+        figure.savefig(output_path, dpi=200)
+        plt.close(figure)
+        return output_path
 
     def _build_printable_rows(self) -> tuple[List[str], List[List[str]]]:
         headers = ["Measure", *self.columns]
@@ -93,16 +173,25 @@ class ResultPrinter:
 
         return f"{round(numeric_value):,}"
 
-    def _format_latex_cell(self, value: str, column_index: int) -> str:
+    def _format_latex_cell(self, value: str, column_index: int, bold: bool = False) -> str:
         if column_index == 0:
-            return self._escape_latex(str(value))
+            escaped_value = self._escape_latex(str(value))
+            return rf"\textbf{{{escaped_value}}}" if bold else escaped_value
 
+        numeric_value = self._parse_numeric(value)
+        if numeric_value is None:
+            escaped_value = self._escape_latex(str(value))
+            return rf"\textbf{{{escaped_value}}}" if bold else escaped_value
+
+        formatted_value = f"{round(numeric_value):,}"
+        return rf"\textbf{{{formatted_value}}}" if bold else formatted_value
+
+    @staticmethod
+    def _parse_numeric(value: str) -> float | None:
         try:
-            numeric_value = float(value)
+            return float(str(value).replace(",", ""))
         except ValueError:
-            return self._escape_latex(str(value))
-
-        return f"{round(numeric_value):,}"
+            return None
 
     @staticmethod
     def _escape_latex(value: str) -> str:
