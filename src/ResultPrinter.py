@@ -44,7 +44,7 @@ class ResultPrinter:
         return "\n".join([header_line, separator_line, *body_lines])
 
     def print_as_latex(self) -> str:
-        """Return all collected rows as a LaTeX tabular."""
+        """Return all collected rows as LaTeX tabular."""
         headers, printable_rows = self._build_printable_rows()
         alignments = ["l", *(["r"] * len(self.columns))]
 
@@ -83,7 +83,7 @@ class ResultPrinter:
             ]
         )
 
-    def print_netdiagram(self, measures: List[str], output_path: str = "netdiagram.png") -> str:
+    def print_netdiagram(self, measures: List[str], output_path: str = "netdiagram.pdf") -> str:
         """Generate a radar/net diagram for selected measures across all knowledge-base columns."""
         if not measures:
             raise ValueError("At least one measure must be provided.")
@@ -125,25 +125,26 @@ class ResultPrinter:
             selected_measures.append(requested_measure)
             normalized_rows.append(normalized)
 
-        figure, axis = plt.subplots(figsize=(8, 8), subplot_kw={"projection": "polar"})
-        angles = [2 * math.pi * i / len(selected_measures) for i in range(len(selected_measures))]
-        closed_angles = [*angles, angles[0]]
+        with plt.rc_context({"font.family": "Libertinus Sans"}):
+            figure, axis = plt.subplots(figsize=(8, 8), subplot_kw={"projection": "polar"})
+            angles = [2 * math.pi * i / len(selected_measures) for i in range(len(selected_measures))]
+            closed_angles = [*angles, angles[0]]
 
-        for column_index, column in enumerate(self.columns):
-            series = [row[column_index] for row in normalized_rows]
-            closed_series = [*series, series[0]]
-            axis.plot(closed_angles, closed_series, label=column)
-            axis.fill(closed_angles, closed_series, alpha=0.1)
+            for column_index, column in enumerate(self.columns):
+                series = [row[column_index] for row in normalized_rows]
+                closed_series = [*series, series[0]]
+                axis.plot(closed_angles, closed_series, label=column)
+                axis.fill(closed_angles, closed_series, alpha=0.1)
 
-        axis.set_xticks(angles)
-        axis.set_xticklabels(selected_measures)
-        axis.set_ylim(0, 1)
-        axis.set_title("Normalized Net Diagram")
-        axis.legend(loc="upper right", bbox_to_anchor=(1.25, 1.1))
+            axis.set_xticks(angles)
+            axis.set_xticklabels(selected_measures)
+            axis.set_ylim(0, 1)
+            axis.set_title("Normalized Net Diagram")
+            axis.legend(loc="upper right", bbox_to_anchor=(1.25, 1.1))
 
-        figure.tight_layout()
-        figure.savefig(output_path, dpi=200)
-        plt.close(figure)
+            figure.tight_layout()
+            figure.savefig(output_path)
+            plt.close(figure)
         return output_path
 
     def _build_printable_rows(self) -> tuple[List[str], List[List[str]]]:
@@ -165,7 +166,8 @@ class ResultPrinter:
             measure = measure[:-1]
         return measure
 
-    def _format_value(self, value: str) -> str:
+    @staticmethod
+    def _format_value(value: str) -> str:
         try:
             numeric_value = float(value)
         except ValueError:

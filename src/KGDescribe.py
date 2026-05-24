@@ -154,7 +154,7 @@ if __name__ == "__main__":
     rdf_files = resolve_input_files(args.inputdir)
     app = KGDescribe(args.settings)
     app.netdiagram_measures = NETDIAGRAM_MEASURES
-    app.describe(rdf_files, latex_file_name="casestudy.tex", netdiagram_file_name="netdiagram.png")
+    app.describe(rdf_files, latex_file_name="casestudy.tex", netdiagram_file_name="netdiagram.pdf")
 
     total_minutes = (time.perf_counter() - run_start_time) / 60.0
     log_path = write_run_log(args, rdf_files, total_minutes)
